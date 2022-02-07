@@ -1,0 +1,182 @@
+<div class="section-padding">
+  <div class="container">
+    <div class="block-padding">
+      <form #form="ngForm">
+        <div class="row">
+          <app-input [control]="form.controls['JOB']" [element]="JOB" [inputID]="'JOB'"
+            [titleText]="getTranslate('FIELD.054')" class="col-md-3 mb-2">
+            <select input-control id="JOB" name="JOB" ngModel #JOB required (ngModelChange)="onSelectChange($event)">
+              <option value="">請選擇</option>
+              <option [class]="getOptionClass(data.TYPE)" [value]="data.VALUE" [disabled]="(data.TYPE !== 'OPTION')"
+                *ngFor="let data of jobList">{{getOptionTitle(data)}}</option>
+            </select>
+          </app-input>
+          <app-input [control]="form.controls['QUANTITY']" [element]="QUANTITY" [inputID]="'QUANTITY'"
+            [titleText]="getTranslate('FIELD.055')" class="col-md-3 mb-2">
+            <select input-control id="QUANTITY" name="QUANTITY" ngModel #QUANTITY required>
+              <option value="">請選擇</option>
+              <option [value]="data" *ngFor="let data of coreArr">{{data}}</option>
+            </select>
+          </app-input>
+        </div>
+        <a class="mb-2" href="javascript:void(0)" (click)="openDlg()">
+          <i class="fa fa-calculator ml-1"></i>
+          核心類型轉換
+        </a>
+        <div class="d-flex mt-3 mb-5">
+          <button class="bn mr-2" (click)="onSubmit(form)">
+            <small><i class="fa fa-search mr-1"></i>{{getTranslate('BUTTON.010')}}</small>
+          </button>
+          <button class="bn mr-2" (click)="onSave(form)">
+            <small><i class="fa fa-floppy-o mr-1"></i>{{getTranslate('BUTTON.011')}}</small>
+          </button>
+          <button class="bn" (click)="onClear(form)">
+            <small><i class="fa fa-trash-o mr-1"></i>{{getTranslate('BUTTON.016')}}</small>
+          </button>
+        </div>
+        <div class="row">
+          <app-input [control]="form.controls['TYPE']" [element]="TYPE" [inputID]="'TYPE'"
+            [titleText]="getTranslate('FIELD.021')" class="col-md-3 mb-2">
+            <select input-control id="TYPE" name="TYPE" [ngModel]="initType" #TYPE
+              (ngModelChange)="onTypeChange($event)">
+              <option value="BEST">完美組合（{{getShowCore('BEST').length}}）</option>
+              <option value="GOOD">次優組合（{{getShowCore('GOOD').length}}）</option>
+              <option value="SOSO">普通組合（{{getShowCore('SOSO').length}}）</option>
+              <option value="BAD">最差組合（{{getShowCore('BAD').length}}）</option>
+              <option value="ALL">全部（{{getShowCore('ALL').length}}）</option>
+            </select>
+          </app-input>
+        </div>
+      </form>
+      <div class="font-weight-bold text-center cursor" (click)="active[0] = !active[0]">
+        <h5>技能庫<i [class]="'ml-2 ' + (active[0] ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i></h5>
+      </div>
+      <hr class="art-hr">
+      <div class="row pb-3" *ngIf="active[0]">
+        <div class="col-lg-2 col-md-3 col-sm-4 col-4" *ngFor="let data of skillList">
+          <a href="javascript:void(0)" (click)="searchSkillChange('ADD', data, 0)">
+            <div class="w-100 my-2">
+              <div class="d-flex">
+                <img [class]="'mx-auto' + (isFilter('SKILL', 0, data.IMG) ? ' img-filter' : '')"
+                  [src]="'assets/img/maple-story/core/' + JOB.value + '/技能/' + data.IMG + '.png'">
+              </div>
+              <div class="text-center small">{{data.NAME}}</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="font-weight-bold text-center cursor" (click)="active[1] = !active[1]">
+        <h5>要組合的技能<i [class]="'ml-2 ' + (active[1] ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i></h5>
+      </div>
+      <hr class="art-hr">
+      <div class="row pb-3" *ngIf="active[1]">
+        <div class="col-lg-2 col-md-3 col-sm-4 col-4" *ngFor="let data of searchSkill; let idx = index">
+          <a href="javascript:void(0)" (click)="searchSkillChange('SUB', data, idx)">
+            <div class="w-100 my-2">
+              <div class="d-flex">
+                <img class="mx-auto" [src]="'assets/img/maple-story/core/' + JOB.value + '/技能/' + data.IMG + '.png'">
+              </div>
+              <div class="text-center small">{{data.NAME}}</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="font-weight-bold text-center cursor" (click)="active[2] = !active[2]">
+        <h5>核心庫<i [class]="'ml-2 ' + (active[2] ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i></h5>
+      </div>
+      <hr class="art-hr">
+      <div class="pb-3" *ngIf="active[2]">
+        <div *ngFor="let data of coreList; let idx = index">
+          <div *ngIf="isShow('SKILL', data.LAYER1)">
+            <div class="cursor" (click)="data.ACTIVE = !data.ACTIVE">
+              <i [class]="'mr-2 ' + (data.ACTIVE ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i>
+              <img class="mx-auto"
+                [src]="'assets/img/maple-story/core/' + JOB.value + '/技能/' + getSkill(data.LAYER1).IMG + '.png'">
+              {{getSkill(data.LAYER1).NAME}}
+            </div>
+            <hr class="art-hr">
+            <div class="row" *ngIf="data.ACTIVE">
+              <div [class]="'col-lg-2 col-md-3 col-sm-4 col-4 py-2' + (isShow('CORE', item.IMG) ? '' : ' d-none')"
+                *ngFor="let item of data.LIST">
+                <a href="javascript:void(0)" (click)="searchCoreChange('ADD', item, data.LAYER1, 0)">
+                  <div class="w-100">
+                    <div class="d-flex">
+                      <img [class]="'mx-auto' + (isFilter('CORE', idx, item.IMG) ? ' img-filter' : '')"
+                        [src]="'assets/img/maple-story/core/' + JOB.value + '/核心/' + data.LAYER1 + '/' + item.IMG + '.png'">
+                    </div>
+                  </div>
+                </a>
+                <a href="javascript:void(0)" (click)="clipboard('core_' + data.LAYER1 + '_' + item.IMG)">
+                  <div class="text-center small position-relative">
+                    <i class="fa fa-clipboard mr-2"></i>
+                    <span [id]="'core_' + data.LAYER1 + '_' + item.IMG">{{item.NAME}}</span>
+                    <span [id]="'tips_core_' + data.LAYER1 + '_' + item.IMG"
+                      class="p-1 m-0 position-absolute copy-tips alert alert-dark fade">複製成功</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="font-weight-bold text-center cursor" (click)="active[3] = !active[3]">
+        <h5>自身核心<i [class]="'ml-2 ' + (active[3] ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i></h5>
+      </div>
+      <hr class="art-hr">
+      <div class="pb-3" *ngIf="active[3]">
+        <div *ngFor="let data of searchCore">
+          <div *ngIf="isShow('SKILL', data.LAYER1)">
+            <div class="cursor" (click)="data.ACTIVE = !data.ACTIVE">
+              <i [class]="'mr-2 ' + (data.ACTIVE ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i>
+              <img class="mx-auto" [src]="'assets/img/maple-story/core/' + JOB.value + '/技能/' + data.LAYER1 + '.png'">
+              {{getSkill(data.LAYER1).NAME}}（{{getCoreLen(data.LIST)}}）
+            </div>
+            <hr class="art-hr">
+            <div class="row" *ngIf="data.ACTIVE">
+              <div [class]="'col-lg-2 col-md-3 col-sm-4 col-4 py-2' + (isShow('CORE', item.IMG) ? '' : ' d-none')"
+                *ngFor="let item of data.LIST; let idx = index">
+                <a href="javascript:void(0)" (click)="searchCoreChange('SUB', item, data.LAYER1, idx)">
+                  <div class="w-100">
+                    <div class="d-flex">
+                      <img class="mx-auto"
+                        [src]="'assets/img/maple-story/core/' + JOB.value + '/核心/' + data.LAYER1 + '/' + item.IMG + '.png'">
+                    </div>
+                  </div>
+                </a>
+                <a href="javascript:void(0)" (click)="clipboard('search_' + data.LAYER1 + '_' + item.IMG)">
+                  <div class="text-center small position-relative">
+                    <i class="fa fa-clipboard mr-2"></i>
+                    <span [id]="'search_' + data.LAYER1 + '_' + item.IMG">{{item.NAME}}</span>
+                    <span [id]="'tips_core_' + data.LAYER1 + '_' + item.IMG"
+                      class="p-1 m-0 position-absolute copy-tips alert alert-dark fade">複製成功</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="font-weight-bold text-center cursor" (click)="active[4] = !active[4]">
+        <h5>查詢結果<i [class]="'ml-2 ' + (active[4] ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i></h5>
+      </div>
+      <hr class="art-hr">
+      <div class="pb-3" *ngIf="active[4]">
+        <div *ngIf="queryMsg !== ''">{{queryMsg}}</div>
+        <div *ngFor="let data of getShowCore(TYPE.value); let idx = index">
+          <div>第{{(idx + 1).toString()}}組</div>
+          <hr class="art-hr">
+          <div class="row">
+            <div class="col-lg-2 col-md-3 col-sm-4 col-4" *ngFor="let item of data.LIST">
+              <div class="w-100 my-2">
+                <div class="d-flex">
+                  <img class="mx-auto" [src]="'assets/img/maple-story/core/' + JOB.value + '/核心/' + item.IMG_SOR">
+                </div>
+                <div class="text-center small">{{item.NAME}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
